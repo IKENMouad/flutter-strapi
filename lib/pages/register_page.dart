@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -107,24 +109,57 @@ class _RegisterPage extends State<RegisterPage> {
     if (form!.validate()) {
       form.save();
       registerRequest();
-      print('Username: $_username , Email: $_email , Password: $_password');
     }
   }
 
-  registerRequest() {
-    const url = 'http://localhost:1337/auth/local/register';
-    http.post(Uri.parse(url), body: {
-      'username': _username,
-      'password': _password,
-      'email': _email
-    }).then((http.Response response) => {});
+  registerRequest() async {
+    try {
+      // print('Username: $_username , Email: $_email , Password: $_password');
+      const url = 'http://10.0.2.2:3000/auth/register';
+      const Map<String, String> headers = {'content-type': 'application/json'};
+      final http.Response response = await http.post(Uri.parse(url),
+          body: {'name': _username, 'password': _password, 'email': _email},
+          headers: headers);
+      final responseData = json.decode(response.body);
+      print(responseData.toString());
+      if (response.statusCode == 201) {
+        _showSuccesSnak();
+      } else {
+        String message = responseData['message'];
+        _showFailedSnak(message);
+      }
+    } catch (e) {
+      _showFailedSnak(e.toString());
+    }
+  }
+
+  void _showSuccesSnak() {
+    final snakBar = SnackBar(
+      content: Text(
+        'User $_username successfully created !',
+        style: const TextStyle(color: Colors.green),
+      ),
+      duration: const Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snakBar);
+    _formKey.currentState!.reset();
+  }
+
+  void _showFailedSnak(String message) {
+    final snakBar = SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(color: Colors.red),
+      ),
+      duration: const Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snakBar);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: const Text('register'),
       ),
       body: Container(

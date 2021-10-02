@@ -1,22 +1,32 @@
+import 'package:app1/models/app_state.dart';
 import 'package:app1/pages/login_page.dart';
 import 'package:app1/pages/register_page.dart';
+import 'package:app1/pages/users_page.dart';
+import 'package:app1/redux/reducers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+
+import 'package:redux/redux.dart';
+import 'package:redux_thunk/redux_thunk.dart';
 
 void main() {
-  runApp(const MyApp());
+  final store = Store<AppState>(appReducer,
+      initialState: AppState.intial(), middleware: [thunkMiddleware]);
+  runApp(MyApp(store));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp(store);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Flutter Demo 1',
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (BuildContext context) => const LoginPage(),
-          '/register': (BuildContext context) => const RegisterPage()
+          '/register': (BuildContext context) => const RegisterPage(),
+          '/users': (BuildContext context) => const UsersPage(),
         },
         theme: ThemeData(
             primaryColor: Colors.cyan[400],
@@ -24,9 +34,8 @@ class MyApp extends StatelessWidget {
             textTheme: const TextTheme(
                 headline1:
                     TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold))),
-        home: const RegisterPage()
-        // home: const LoginPage()
-        );
+        // home: const RegisterPage()
+        home: const UsersPage());
   }
 }
 
